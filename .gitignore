@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data & model artifacts (too large for git)
+data/raw/
+data/processed/
+outputs/checkpoints/
+outputs/logs/
+*.pth
+*.pt
+*.h5
+*.ckpt
+
+# OS/editor
+.DS_Store
+.vscode/
+*.swp
+
+# Env
+.env
