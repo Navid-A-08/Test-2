@@ -14,9 +14,11 @@ Notes on evaluation metric choice:
 """
 
 import argparse
+import random
 import time
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -32,6 +34,26 @@ CHECKPOINT_DIR = Path("outputs/checkpoints")
 LOG_PATH = Path("outputs/logs/train_log.csv")
 
 MALIGNANT_LABEL = LABEL_MAP["malignant"]
+
+DEFAULT_SEED = 42
+
+
+def set_seed(seed: int):
+    """
+    Make training as reproducible as possible: same seed + same code +
+    same data should give the same result. Covers Python's random module,
+    NumPy, and PyTorch (CPU and CUDA).
+
+    Note: cudnn.deterministic=True can slow training slightly in exchange
+    for reproducibility — an acceptable trade-off while you're developing
+    and comparing runs.
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 def load_splits():
@@ -97,7 +119,11 @@ def main():
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--freeze-backbone", action="store_true")
     parser.add_argument("--num-workers", type=int, default=2)
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
     args = parser.parse_args()
+
+    set_seed(args.seed)
+    print(f"Random seed set to {args.seed}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
